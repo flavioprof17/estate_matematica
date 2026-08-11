@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>La matematica a colori — Il taccuino dei numeri</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F3EEE1;
+    --paper-2:#FBF7EC;
+    --grid:rgba(62,124,177,.12);
+    --grid-strong:rgba(62,124,177,.20);
+    --card:#FFFFFF;
+    --ink:#2B2A26;
+    --ink-soft:#6E675B;
+    --line:#E3DAC8;
+    --arancione:#EC873A;
+    --giallo:#E0A317;
+    --blu:#3E7CB1;
+    --viola:#8B6BB1;
+    --good:#3F9A55;
+    --good-bg:#E7F3E9;
+    --warn:#D8564B;
+    --warn-bg:#FBE9E7;
+    --quad:#3E7CB1;
+    --quad-bg:#EAF1F8;
+    --radius:20px;
+    --shadow:0 10px 30px rgba(60,45,20,.10);
+    --shadow-sm:0 4px 14px rgba(60,45,20,.08);
+    --display:'Fredoka','Nunito',system-ui,sans-serif;
+    --body:'Nunito',system-ui,-apple-system,Segoe UI,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:var(--body);
+    color:var(--ink);
+    background-color:var(--paper);
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size:26px 26px;
+    font-size:18px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  .wrap{max-width:880px;margin:0 auto;padding:22px 18px 96px}
+  h1,h2,h3{font-family:var(--display);line-height:1.15;margin:0}
+  button{font-family:var(--body);cursor:pointer}
+  b{font-weight:800}
+  :focus-visible{outline:3px solid #2B2A26;outline-offset:2px;border-radius:10px}
+
+  /* ---------- screens ---------- */
+  .screen{display:none;animation:fadeUp .35s ease}
+  .screen.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+  /* ---------- HOME ---------- */
+  .hero{
+    position:relative;
+    background:linear-gradient(150deg,#FBF7EC 0%,#F3ECDA 100%);
+    border:2px solid #fff;
+    border-radius:26px;
+    box-shadow:var(--shadow);
+    padding:30px 26px 26px;
+    text-align:center;
+    overflow:hidden;
+  }
+  .hero:before{
+    content:"";position:absolute;inset:0;
+    background-image:
+      linear-gradient(var(--grid-strong) 1px,transparent 1px),
+      linear-gradient(90deg,var(--grid-strong) 1px,transparent 1px);
+    background-size:26px 26px;opacity:.5;pointer-events:none;
+  }
+  .hero > *{position:relative}
+  .kicker{
+    display:inline-block;font-family:var(--display);font-weight:600;
+    font-size:.82rem;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--blu);background:#fff;border:1px solid var(--line);
+    padding:5px 12px;border-radius:999px;margin-bottom:14px;
+  }
+  .hero h1{font-size:2.5rem;color:var(--ink);letter-spacing:-.01em}
+  .hero h1 .plus{color:var(--arancione)}
+  .hero h1 .minus{color:var(--blu)}
+  .hero p.sub{color:var(--ink-soft);max-width:44ch;margin:12px auto 0;font-size:1.05rem}
+
+  .palette{
+    display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin:24px auto 0;max-width:520px;
+  }
+  @media(max-width:430px){.palette{grid-template-columns:1fr}}
+  .blob{
+    position:relative;border:none;border-radius:20px;padding:20px 14px 16px;
+    color:#fff;text-align:center;box-shadow:var(--shadow-sm);
+    transition:transform .12s ease, box-shadow .12s ease;overflow:hidden;
+  }
+  .blob:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+  .blob:active{transform:translateY(-1px)}
+  .blob .dot{
+    width:52px;height:52px;border-radius:50%;margin:0 auto 10px;
+    background:rgba(255,255,255,.28);display:flex;align-items:center;justify-content:center;
+    font-size:1.7rem;
+  }
+  .blob .b-title{font-family:var(--display);font-weight:600;font-size:1.12rem;display:block;line-height:1.2}
+  .blob .b-sub{font-size:.82rem;opacity:.92;display:block;margin-top:3px}
+  .blob .check{
+    position:absolute;top:8px;right:10px;font-size:1.1rem;opacity:0;transform:scale(.6);
+    transition:.2s;
+  }
+  .blob.done .check{opacity:1;transform:scale(1)}
+  .blob.done:after{content:"";position:absolute;inset:0;border:3px solid rgba(255,255,255,.9);border-radius:20px}
+  .b-arancione{background:linear-gradient(160deg,#F2984E,#EC873A)}
+  .b-giallo{background:linear-gradient(160deg,#EDB53E,#DFA015)}
+  .b-blu{background:linear-gradient(160deg,#5391C4,#3E7CB1)}
+  .b-viola{background:linear-gradient(160deg,#9C7EC0,#8B6BB1)}
+
+  .home-links{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px auto 0;max-width:520px}
+  @media(max-width:560px){.home-links{grid-template-columns:1fr}}
+  .link-card{
+    display:flex;align-items:center;gap:12px;background:var(--card);
+    border:2px solid var(--line);border-radius:18px;padding:16px 18px;text-align:left;
+    box-shadow:var(--shadow-sm);transition:transform .12s ease;
+  }
+  .link-card:hover{transform:translateY(-2px)}
+  .link-card .lc-emoji{font-size:1.7rem}
+  .link-card .lc-t{font-family:var(--display);font-weight:600;font-size:1.05rem}
+  .link-card .lc-s{font-size:.86rem;color:var(--ink-soft)}
+
+  .teacher{
+    margin-top:18px;background:#FFFDF6;border:1px dashed var(--line);
+    border-radius:16px;padding:14px 16px;font-size:.9rem;color:var(--ink-soft);
+  }
+  .teacher b{color:var(--ink)}
+
+  /* ---------- section header ---------- */
+  .backbar{margin-bottom:12px}
+  .btn-back{
+    background:#fff;border:2px solid var(--line);border-radius:999px;
+    padding:8px 16px;font-weight:700;color:var(--ink);font-size:.95rem;
+  }
+  .btn-back:hover{background:var(--paper-2)}
+  .sec-head{
+    color:#fff;border-radius:22px;padding:22px 22px 18px;box-shadow:var(--shadow-sm);
+    margin-bottom:18px;position:relative;overflow:hidden;
+  }
+  .sec-head .s-emoji{font-size:2rem;display:block;margin-bottom:4px}
+  .sec-head h2{font-size:1.7rem}
+  .sec-head p{margin:8px 0 0;opacity:.95;font-size:1rem;max-width:52ch}
+  .h-arancione{background:linear-gradient(150deg,#F2984E,#EC873A)}
+  .h-giallo{background:linear-gradient(150deg,#EDB53E,#DFA015)}
+  .h-blu{background:linear-gradient(150deg,#5391C4,#3E7CB1)}
+  .h-viola{background:linear-gradient(150deg,#9C7EC0,#8B6BB1)}
+
+  /* ---------- progress ---------- */
+  .progress{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    background:rgba(255,255,255,.18);border-radius:14px;padding:10px 14px;margin-top:14px;
+  }
+  .progress .pdots{display:flex;gap:6px}
+  .pdot{width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,.35);transition:.2s}
+  .pdot.on{background:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.4)}
+  .progress .ptext{font-size:.9rem;font-weight:700}
+  .progress .done-badge{
+    margin-left:auto;font-family:var(--display);font-weight:600;font-size:.9rem;
+    background:#fff;color:var(--good);border-radius:999px;padding:4px 12px;display:none;
+  }
+  .progress.completed .done-badge{display:inline-block}
+
+  /* ---------- cards / machines ---------- */
+  .card{
+    background:var(--card);border:2px solid var(--line);border-radius:var(--radius);
+    padding:20px 20px 22px;margin-bottom:16px;box-shadow:var(--shadow-sm);
+  }
+  .card > .task-num{
+    display:inline-block;font-family:var(--display);font-weight:600;font-size:.78rem;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);
+    background:var(--paper-2);border:1px solid var(--line);border-radius:999px;
+    padding:4px 12px;margin-bottom:12px;
+  }
+  .card h3{font-size:1.25rem;margin-bottom:6px}
+  .card .lead{color:var(--ink-soft);font-size:.95rem;margin:0 0 14px}
+
+  .machine{
+    background:
+      linear-gradient(var(--grid) 1px,transparent 1px),
+      linear-gradient(90deg,var(--grid) 1px,transparent 1px),
+      var(--paper-2);
+    background-size:22px 22px,22px 22px,auto;
+    border:2px solid var(--line);border-radius:18px;padding:22px 18px;text-align:center;
+  }
+  .machine.shake{animation:shake .4s}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+  .m-q{font-size:1.15rem;color:var(--ink);min-height:2.2em;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px}
+  .bignum{font-family:var(--display);font-weight:700;font-size:2.5rem;letter-spacing:.02em;line-height:1.1;color:var(--ink)}
+  .qmark{font-family:var(--display);font-weight:700;font-size:1.8rem;color:var(--ink-soft);margin:0 4px}
+  .hint{font-size:.85rem;color:var(--ink-soft);font-weight:700}
+  .prob{font-weight:700;font-size:1.15rem;line-height:1.5;color:var(--ink);max-width:40ch}
+
+  /* like-terms slot */
+  .likeq{display:flex;flex-direction:column;align-items:center;gap:10px}
+  .slotwrap{display:inline-flex;align-items:center;font-family:var(--display);font-weight:700;color:var(--ink)}
+  .slot{
+    display:inline-flex;align-items:center;justify-content:center;min-width:54px;height:58px;
+    border:3px dashed var(--blu);border-radius:12px;color:var(--blu);margin-right:3px;background:#fff;
+    font-size:2rem;
+  }
+  .slot.filled{border-style:solid;border-color:var(--good);color:var(--good)}
+  .slot.wrongslot{border-color:var(--warn);color:var(--warn)}
+  .slotL{font-size:2.5rem}
+
+  .m-opts{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:18px}
+  .m-opt{
+    font-family:var(--display);font-weight:600;font-size:1.5rem;color:var(--ink);
+    background:#fff;border:2px solid var(--line);border-radius:16px;
+    padding:12px 8px;min-width:88px;box-shadow:var(--shadow-sm);
+    transition:transform .1s ease,background .15s ease,border-color .15s ease;
+  }
+  .m-opt:hover:not(:disabled){transform:translateY(-2px);border-color:var(--ink-soft)}
+  .m-opt:disabled{cursor:default}
+  .m-opt.ok{background:var(--good-bg);border-color:var(--good);color:var(--good)}
+  .m-opt.no{background:var(--warn-bg);border-color:var(--warn);color:var(--warn);opacity:.65}
+
+  /* number pad */
+  .m-pad{display:grid;grid-template-columns:repeat(3,66px);gap:10px;justify-content:center;margin-top:18px}
+  .m-key{
+    font-family:var(--display);font-weight:600;font-size:1.5rem;color:var(--ink);
+    background:#fff;border:2px solid var(--line);border-radius:14px;padding:12px 0;
+    box-shadow:var(--shadow-sm);transition:transform .1s ease,border-color .15s;
+  }
+  .m-key:hover:not(:disabled){transform:translateY(-2px);border-color:var(--ink-soft)}
+  .m-key:disabled{cursor:default;opacity:.5}
+  .m-key.ok{background:var(--good-bg);border-color:var(--good);color:var(--good);opacity:1}
+  .m-key.no{background:var(--warn-bg);border-color:var(--warn);color:var(--warn);opacity:.65}
+
+  .m-fb{min-height:1.6em;margin-top:14px;font-weight:800;font-size:1.05rem}
+  .m-fb.good{color:var(--good)}
+  .m-fb.no{color:var(--warn)}
+
+  /* worksheet: fixed set of 10 */
+  .sheet-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+  .sheet-title{font-family:var(--display);font-weight:600;font-size:1rem;color:var(--ink)}
+  .sheet-progress{font-size:.9rem;color:var(--ink-soft);font-weight:700;background:var(--paper-2);border:1px solid var(--line);border-radius:999px;padding:4px 12px}
+  .sheet-item{
+    background:
+      linear-gradient(var(--grid) 1px,transparent 1px),
+      linear-gradient(90deg,var(--grid) 1px,transparent 1px),
+      var(--paper-2);
+    background-size:22px 22px,22px 22px,auto;
+    border:2px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:10px;
+    transition:border-color .15s,background .2s;
+  }
+  .sheet-item.shake{animation:shake .4s}
+  .sheet-item.done{border-color:var(--good);background:var(--good-bg)}
+  .si-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .si-num{width:26px;height:26px;border-radius:50%;background:#fff;border:2px solid var(--line);display:inline-flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:600;font-size:.85rem;color:var(--ink-soft);flex:none}
+  .sheet-item.done .si-num{background:var(--good);border-color:var(--good);color:#fff}
+  .si-q{font-family:var(--display);font-weight:700;font-size:1.3rem;color:var(--ink)}
+  .sheet-words .si-q{font-family:var(--body);font-weight:700;font-size:1.02rem;line-height:1.4}
+  .si-opts{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;margin-left:36px}
+  .si-opt{font-family:var(--display);font-weight:600;font-size:1.2rem;color:var(--ink);background:#fff;border:2px solid var(--line);border-radius:12px;padding:8px 6px;min-width:60px;box-shadow:var(--shadow-sm);transition:transform .1s ease,border-color .15s}
+  .si-opt:hover:not(:disabled){transform:translateY(-2px);border-color:var(--ink-soft)}
+  .si-opt:disabled{cursor:default}
+  .si-opt.ok{background:var(--good-bg);border-color:var(--good);color:var(--good)}
+  .si-opt.no{background:var(--warn-bg);border-color:var(--warn);color:var(--warn);opacity:.6}
+  .si-fb{display:inline-block;margin-left:36px;margin-top:6px;font-weight:800;font-size:.95rem;min-height:1em}
+  .si-fb.good{color:var(--good)}
+  .si-fb.no{color:var(--warn)}
+  .sheet-done{display:none;margin-top:6px;background:var(--good-bg);border:2px solid var(--good);border-radius:14px;padding:14px 16px;color:var(--good);font-family:var(--display);font-weight:600;text-align:center}
+  .sheet-done.show{display:block}
+
+  /* toggles */
+  .toolbar{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:14px}
+  .toolbar .lbl{font-size:.85rem;color:var(--ink-soft);font-weight:700;align-self:center;margin-right:2px}
+  .tg{
+    background:#fff;border:2px solid var(--line);border-radius:999px;
+    padding:7px 14px;font-weight:700;font-size:.92rem;color:var(--ink-soft);
+  }
+  .tg.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+  /* notebook boxes */
+  .quad{
+    background:var(--quad-bg);border:2px dashed #B9D2E8;border-radius:16px;
+    padding:16px 18px;margin-top:14px;
+  }
+  .quad .q-label{
+    display:inline-block;font-family:var(--display);font-weight:600;font-size:.82rem;
+    color:#fff;background:var(--quad);border-radius:999px;padding:3px 12px;margin-bottom:8px;
+  }
+  .quad p{margin:6px 0}
+  .quad ul{margin:8px 0 0;padding-left:22px}
+  .quad li{margin:5px 0}
+  .example{
+    display:inline-block;font-family:var(--display);font-weight:600;letter-spacing:.03em;
+    background:#fff;border:1px solid #B9D2E8;border-radius:10px;padding:6px 12px;margin-top:8px;
+    color:var(--ink);
+  }
+
+  /* ---------- notebook index ---------- */
+  .qi-block{border-top:2px solid var(--line);padding-top:16px;margin-top:16px}
+  .qi-block:first-of-type{border-top:none;padding-top:0;margin-top:0}
+  .qi-block h3{display:flex;align-items:center;gap:10px;font-size:1.15rem;margin-bottom:8px}
+  .qi-dot{width:16px;height:16px;border-radius:50%;display:inline-block;flex:none}
+  .qi-block ul{margin:6px 0 0;padding-left:24px}
+  .qi-block li{margin:6px 0}
+  .btn-print{
+    background:var(--ink);color:#fff;border:none;border-radius:14px;
+    padding:12px 20px;font-weight:800;font-size:1rem;box-shadow:var(--shadow-sm);
+  }
+  .btn-print:hover{background:#000}
+
+  /* ---------- diploma ---------- */
+  .diploma{
+    text-align:center;background:linear-gradient(160deg,#FBF7EC,#F1E7D2);
+    border:3px solid #fff;border-radius:24px;padding:30px 24px;box-shadow:var(--shadow);
+    position:relative;overflow:hidden;
+  }
+  .diploma:before{
+    content:"";position:absolute;inset:0;
+    background-image:
+      linear-gradient(var(--grid-strong) 1px,transparent 1px),
+      linear-gradient(90deg,var(--grid-strong) 1px,transparent 1px);
+    background-size:26px 26px;opacity:.45;pointer-events:none;
+  }
+  .diploma > *{position:relative}
+  .diploma .seal{font-size:3rem;margin-bottom:6px}
+  .diploma h2{font-size:1.7rem}
+  .diploma .stars{font-size:2rem;letter-spacing:.18em;margin:12px 0;color:var(--giallo)}
+  .diploma .d-count{font-family:var(--display);font-weight:600;color:var(--ink-soft)}
+  .diploma .d-msg{margin-top:8px;font-size:1.05rem;color:var(--ink)}
+
+  /* ---------- toast ---------- */
+  #toast{
+    position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);
+    background:var(--ink);color:#fff;font-family:var(--display);font-weight:600;
+    padding:14px 22px;border-radius:999px;box-shadow:var(--shadow);
+    opacity:0;pointer-events:none;transition:.3s;z-index:50;font-size:1.02rem;
+  }
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  .teacher-actions{margin-top:12px}
+  .btn-reset{
+    background:#fff;border:2px solid var(--line);border-radius:999px;
+    padding:8px 16px;font-weight:700;font-size:.9rem;color:var(--ink-soft);
+  }
+  .btn-reset:hover{border-color:var(--warn);color:var(--warn)}
+  .btn-reset.armed{background:var(--warn-bg);border-color:var(--warn);color:var(--warn)}
+
+  #saveind{
+    position:fixed;left:16px;bottom:16px;
+    background:#fff;border:2px solid var(--good);color:var(--good);
+    font-family:var(--display);font-weight:600;font-size:.85rem;
+    padding:7px 14px;border-radius:999px;box-shadow:var(--shadow-sm);
+    opacity:0;transform:translateY(8px);transition:.25s;pointer-events:none;z-index:40;
+  }
+  #saveind.show{opacity:1;transform:translateY(0)}
+
+  .site-footer{text-align:center;color:var(--ink-soft);font-size:.85rem;margin-top:24px}
+
+  /* ---------- print ---------- */
+  @media print{
+    body{background:#fff}
+    .no-print{display:none !important}
+    .screen{display:none !important}
+    #screen-quaderno{display:block !important}
+    .card{box-shadow:none;border:1px solid #ccc}
+    .qi-dot{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    #saveind,#toast{display:none !important}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ================= HOME ================= -->
+<section id="screen-home" class="screen active">
+  <div class="hero">
+    <span class="kicker">Il taccuino dei numeri</span>
+    <h1>La matematica <span class="plus">+</span> a colori <span class="minus">−</span></h1>
+    <p class="sub">Scegli un colore e allenati. Ogni esercizio è nuovo: puoi farne quanti vuoi! Tocca la risposta giusta e colora tutto il taccuino.</p>
+
+    <div class="palette">
+      <button class="blob b-arancione" data-goto="screen-arancione" data-key="arancione">
+        <span class="check">✓</span>
+        <span class="dot">➕</span>
+        <span class="b-title">Arancione</span>
+        <span class="b-sub">Le addizioni</span>
+      </button>
+      <button class="blob b-giallo" data-goto="screen-giallo" data-key="giallo">
+        <span class="check">✓</span>
+        <span class="dot">➖</span>
+        <span class="b-title">Giallo</span>
+        <span class="b-sub">Le sottrazioni</span>
+      </button>
+      <button class="blob b-blu" data-goto="screen-blu" data-key="blu">
+        <span class="check">✓</span>
+        <span class="dot">🅰️</span>
+        <span class="b-title">Blu</span>
+        <span class="b-sub">Somme con le lettere</span>
+      </button>
+      <button class="blob b-viola" data-goto="screen-viola" data-key="viola">
+        <span class="check">✓</span>
+        <span class="dot">🧩</span>
+        <span class="b-title">Viola</span>
+        <span class="b-sub">La vita di ogni giorno</span>
+      </button>
+    </div>
+
+    <div class="home-links">
+      <button class="link-card" data-goto="screen-quaderno">
+        <span class="lc-emoji">📓</span>
+        <span><span class="lc-t">Compiti sul quaderno</span><span class="lc-s">Da scrivere a mano · si può stampare</span></span>
+      </button>
+      <button class="link-card" data-goto="screen-diploma">
+        <span class="lc-emoji">🏅</span>
+        <span><span class="lc-t">Il mio diploma</span><span class="lc-s">Guarda i colori conquistati</span></span>
+      </button>
+    </div>
+  </div>
+
+  <div class="teacher no-print">
+    <b>Per l'insegnante.</b> Quattro colori, ognuno con esercizi infiniti a correzione immediata e senza penalità. Colorare un colore richiede <b>6 risposte giuste</b>, ma la pratica può continuare senza limiti. In addizioni e sottrazioni puoi scegliere la difficoltà. Nel <b>Blu</b> si sommano termini uguali (es. <b>a + 2a</b>): l'alunno scrive il numero del risultato con il <b>tastierino</b> (→ 3a), dopo un'introduzione concreta con le mele. Il <b>Viola</b> raccoglie problemi facilissimi di vita quotidiana con numeri piccoli. In ogni colore c'è anche una <b>scheda fissa di 10 esercizi</b> da completare, oltre all'allenamento infinito. In fondo trovi i <b>compiti sul quaderno</b> (stampabili). I <b>progressi si salvano da soli</b> sul dispositivo e si ritrovano alla riapertura; funziona anche offline. Con il pulsante qui sotto azzeri tutto quando cambia alunno.
+    <div class="teacher-actions"><button class="btn-reset" id="resetBtn">🗑️ Ricomincia da capo</button></div>
+  </div>
+</section>
+
+<!-- ================= ARANCIONE — ADDIZIONI ================= -->
+<section id="screen-arancione" class="screen">
+  <div class="backbar no-print"><button class="btn-back" data-goto="screen-home">← Torna al taccuino</button></div>
+  <div class="sec-head h-arancione">
+    <span class="s-emoji">➕</span>
+    <h2>Arancione · Le addizioni</h2>
+    <p>Metti insieme i numeri. Comincia facile, poi prova i numeri più grandi quando ti senti pronto.</p>
+    <div class="progress" data-progress-for="arancione">
+      <div class="pdots"><span class="pdot"></span><span class="pdot"></span><span class="pdot"></span><span class="pdot"></span><span class="pdot"></span><span class="pdot"></span></div>
+      <span class="ptext">Giusti: <b class="pcount">0</b></span>
+      <span class="done-badge">✓ Colorato!</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="task-num">Allenamento · Addizioni</span>
+    <h3>Quanto fa?</h3>
+    <div class="toolbar no-print">
+      <span class="lbl">Difficoltà:</span>
+      <button class="tg on" data-set-level="1" data-target="add-main">Facile · entro 20</button>
+      <button class="tg" data-set-level="2" data-target="add-main">Più difficile · entro 100</button>
+    </div>
+    <div class="machine" id="add-main" data-gen="add" data-level="1" data-section="arancione"><div class="m-q"></div><div class="m-opts"></div><div class="m-fb"></div></div>
+  </div>
+
+  <div class="card">
+    <span class="task-num">Gioco · Amici del 10</span>
+    <h3>Quanto manca per fare 10?</h3>
+    <p class="lead">Trova il numero che completa fino a <b>10</b>.</p>
+    <div class="machine" data-gen="amici" data-section="arancione"><div class="m-q"></div><div class="m-opts"></div><div class="m-fb"></div></div>
+  </div>
+
+  <div class="card">
+    <span class="task-num">Scheda · 10 addizioni entro il 10</span>
+    <h3>Fai tutte e 10!</h3>
+    <p class="lead">Solo numeri piccoli, fino a 10. Tocca la risposta giusta a ognuna.</p>
+    <div class="sheet" data-section="arancione">
+      <div class="sheet-head"><span class="sheet-title">Le tue 10 addizioni</span><span class="sheet-progress">Fatte: <b class="sheet-count">0</b>/10</span></div>
+      <div class="sheet-item" data-a="5" data-opts="4,5,6"><div class="si-top"><span class="si-num">1</span><span class="si-q">2 + 3 =</span></div><div class="si-opts"></div><span class="si-fb"></span></div>
+      <div class="sheet-item" data-a="7" data-opts="6,7,8"><div class="si-top"><span class="si-num">2</span><span class="si-q">4 + 3 =</span></div><div class="si-opts"></div><span class="si-fb"></span></div>
+      <div class="sheet-item" data-a="9" data-opts="8,9,10"><div class="si-top"><span class="si-num">3</span><span class="si-q">5 + 4 =</span></div><div class="si-opts"></div><span class="si-fb"></span></div>
+      <div class="sheet-item" data-a="8" data-opts="7,8,9"><div class="si-top"><span class="si-num">4</span><span class="si-q">6 + 2 =</span></div><div class="si-opts"></div><span class="si-fb"></span></div>
+      <div class="sheet-item" data-a="6" data-opts="5,6,7"><div class="si-top"><span class="si-num">5</span><span class="si-q">3 + 3 =</span></div><div class="si-opts"></div><span class="si-fb"></span></div>
+      <div class="sheet-item" data-a="10" data-opts="9,10,11"><div class="si-top"><span class="si-num">6</span><span class="si-q">5 + 5 =</span></div><div class="si-opts"></div><span class="si-fb"></span></div>
+      <div class="sheet-item" data-a="5" data-opts="4,5,6"><div class="si-top"><span class="si-num">7</span><span class="si-q">1 + 4 =</span></div><div class="si-opts"></div><span class="si-fb"></span></div>
+      <div class="sheet-item" data-a="10" data-opts="9,10,11"><div class="si-top"><span class="si-num">8</span><span class="si-q">6 + 4 =</span></div><div class="si-opts"></div><span class="si-fb"></span></div>
+      <div class="sheet-item" data-a="8" data-opts="7,8,9"><div class="si-top"><span class="si-num">9</span><span class="si-q">2 + 6 =</span></div><div class="si-opts"></div><span class="si-fb"></span></div>
+      <div class="sheet-item" data-a="9" data-opts="8,9,10"><div class="si-top"><span class="si-num">10</span><span class="si-q">4 + 5 =</span></div><div class="si-opts"></div><span class="si-fb"></span></div>
+      <div class="sheet-done">🎉 Evviva! Hai fatto tutte e 10 le addizioni!</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="task-num">Attività · Quaderno</span>
+    <h3>Addizioni in colonna</h3>
+    <div class="quad">
+      <span class="q-label">✏️ Sul quaderno</span>
+      <p>Incolonna e calcola sul quaderno a quadretti (unità sotto unità, decine sotto decine):</p>
+      <span class="example">24 + 13 &nbsp;·&nbsp; 35 + 21 &nbsp;·&nbsp; 46 + 12</span>
+      <p style="margin-top:10px">Disegna <b>7 pennarelli</b> e poi altri <b>5</b>. Scrivi quanti sono in tutto.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= GIALLO — SOTTRAZIONI ================= -->
+<section id="screen-giallo" class="screen">
+  <div class="backbar no-print"><button class="btn-back" data-goto="screen-home">← Torna al taccuino</button></div>
+  <div class="sec-head h-giallo">
+    <span class="s-emoji">➖</span>
+    <h2>Giallo · Le sottrazioni</h2>
+    <p>Togli via e conta quanto resta. Puoi scegliere numeri piccoli o più grandi.</p>
+    <div class="progress" data-progress-for="giallo">
+      <div class="pdots"><span class="pdot"></span><span class="pdot"></span><span class="pdot"></span><span class="pdot"></span><span class="pdot"></span><span class="pdot"></span></div>
+      <span class="ptext">Giusti: <b class="pcount">0</b></span>
+      <span class="done-badge">✓ Colorato!</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="task-num">Allenamento · Sottrazioni</span>
+    <h3>Quanto resta?</h3>
+    <div class="toolbar no-print">
+      <span class="lbl">Difficoltà:</span>
+      <button class="tg on" data-set-level="1" data-target="sub-main">Facile · entro 20</button>
+      <button class="tg" data-set-level="2" data-target="sub-main">Più difficile · entro 100</button>
+    </div>
+    <div class="machine" id="sub-main" data-gen="sub" data-level="1" data-section="giallo"><div class="m-q"></div><div class="m-opts"></div><div class="m-fb"></div></div>
+  </div>
+
+  <div class="card">
+    <span class="task-num">Scheda · 10 sottrazioni entro il 10</span>
+    <h3>Fai tutte e 10!</h3>
+    <p class="lead">Solo numeri piccoli, fino a 10. Tocca la risposta giusta a ognuna.</p>
+    <div class="sheet" data-section="giallo">
+      <div class="sheet-head"><span class="sheet-title">Le tue 10 sottrazioni</span><span class="sheet-progress">Fatte: <b class="sheet-count">0</b>/10</span></div>
+      <div class="sheet-item" data-a="3" data-opts="2,3,4"><div class="si-top"><span class="si-num">1</span><span class="si-q">5 − 2 =</span></div><div class="si-opts"></div><span class="si-fb"></span></div>
+      <div class="sheet-item" data-a="4" data-opts="3,4,5"><div class="si-top"><span class="si-num">2</span><span class="si-q">7 − 3 =</span></div><div class="si-opts"></div><span class="si-fb"></span></div>
+      <div class="sheet-item" data-a="5" data-opts="4,5,6"><div class="si-top"><span class="si-num">3</span><span class="si-q">9 − 4 =</span></div><div class="si-opts"></div><span class="si-fb"></span></div>
+      <div class="sheet-item" data-a="5" data-opts="4,5,6"><div class="si-top"><span class="si-num">4</span><span class="si-q">6 − 1 =</span></div><div class="si-opts"></div><span class="si-fb"></span></div>
+      <div class="sheet-item" data-a="3" data-opts="2,3,4"><div class="si-top"><span class="si-num">5</span><span class="si-q">8 − 5 =</span></div><div class="si-opts"></div><span class="si-fb"></span></div>
+      <div class="sheet-item" data-a="4" data-opts="3,4,5"><div class="si-top"><span class="si-num">6</span><span class="si-q">10 − 6 =</span></div><div class="si-opts"></div><span class="si-fb"></span></div>
+      <div class="sheet-item" data-a="2" data-opts="1,2,3"><div class="si-top"><span class="si-num">7</span><span class="si-q">7 − 5 =</span></div><div class="si-opts"></div><span class="si-fb"></span></div>
+      <div class="sheet-item" data-a="2" data-opts="1,2,3"><div class="si-top"><span class="si-num">8</span><span class="si-q">9 − 7 =</span></div><div class="si-opts"></div><span class="si-fb"></span></div>
+      <div class="sheet-item" data-a="6" data-opts="5,6,7"><div class="si-top"><span class="si-num">9</span><span class="si-q">10 − 4 =</span></div><div class="si-opts"></div><span class="si-fb"></span></div>
+      <div class="sheet-item" data-a="6" data-opts="5,6,7"><div class="si-top"><span class="si-num">10</span><span class="si-q">8 − 2 =</span></div><div class="si-opts"></div><span class="si-fb"></span></div>
+      <div class="sheet-done">🎉 Evviva! Hai fatto tutte e 10 le sottrazioni!</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="task-num">Attività · Quaderno</span>
+    <h3>Sottrazioni in colonna</h3>
+    <div class="quad">
+      <span class="q-label">✏️ Sul quaderno</span>
+      <p>Incolonna e calcola sul quaderno a quadretti:</p>
+      <span class="example">28 − 5 &nbsp;·&nbsp; 47 − 12 &nbsp;·&nbsp; 60 − 30</span>
+      <p style="margin-top:10px">Disegna <b>10 fogli</b>. Cancellane <b>4</b>. Scrivi quanti fogli restano.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= BLU — SOMME CON LE LETTERE ================= -->
+<section id="screen-blu" class="screen">
+  <div class="backbar no-print"><button class="btn-back" data-goto="screen-home">← Torna al taccuino</button></div>
+  <div class="sec-head h-blu">
+    <span class="s-emoji">🅰️</span>
+    <h2>Blu · Somme con le lettere</h2>
+    <p>Quando le lettere sono uguali, si sommano i numeri davanti. La lettera resta la stessa. È l'inizio dell'algebra, un passo alla volta!</p>
+    <div class="progress" data-progress-for="blu">
+      <div class="pdots"><span class="pdot"></span><span class="pdot"></span><span class="pdot"></span><span class="pdot"></span><span class="pdot"></span><span class="pdot"></span></div>
+      <span class="ptext">Giusti: <b class="pcount">0</b></span>
+      <span class="done-badge">✓ Colorato!</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="task-num">Prima di iniziare</span>
+    <h3>La lettera è come un oggetto</h3>
+    <p class="lead">Immagina che la lettera <b>a</b> sia una mela 🍎.</p>
+    <div class="quad">
+      <span class="q-label">💡 Guarda</span>
+      <p><b>a</b> &nbsp;=&nbsp; 🍎 &nbsp;&nbsp;(1 mela)</p>
+      <p><b>2a</b> &nbsp;=&nbsp; 🍎🍎 &nbsp;&nbsp;(2 mele)</p>
+      <p><b>a + 2a</b> &nbsp;=&nbsp; 🍎 + 🍎🍎 &nbsp;=&nbsp; <b>3 mele</b> &nbsp;=&nbsp; <b>3a</b></p>
+      <p style="margin-top:10px">Per sommare: conta i numeri davanti alla <b>stessa lettera</b>. La lettera non cambia!</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="task-num">Passo 1 · Due gruppi</span>
+    <h3>Somma le lettere uguali</h3>
+    <p class="lead">Tocca il numero giusto da mettere davanti alla lettera.</p>
+    <div class="machine" data-gen="like" data-section="blu"><div class="m-q"></div><div class="m-opts"></div><div class="m-fb"></div></div>
+  </div>
+
+  <div class="card">
+    <span class="task-num">Passo 2 · Tre gruppi</span>
+    <h3>Ora con tre pezzi</h3>
+    <p class="lead">Stessa regola: somma tutti i numeri davanti alla lettera.</p>
+    <div class="machine" data-gen="like3" data-section="blu"><div class="m-q"></div><div class="m-opts"></div><div class="m-fb"></div></div>
+  </div>
+
+  <div class="card">
+    <span class="task-num">Scheda · 10 calcoli con le lettere</span>
+    <h3>Fai tutti e 10!</h3>
+    <p class="lead">Somma le lettere uguali e tocca il risultato giusto (numero + lettera).</p>
+    <div class="sheet" data-section="blu">
+      <div class="sheet-head"><span class="sheet-title">I tuoi 10 calcoli</span><span class="sheet-progress">Fatti: <b class="sheet-count">0</b>/10</span></div>
+      <div class="sheet-item" data-a="3a" data-opts="2a,3a,4a"><div class="si-top"><span class="si-num">1</span><span class="si-q">a + 2a =</span></div><div class="si-opts"></div><span class="si-fb"></span></div>
+      <div class="sheet-item" data-a="3a" data-opts="2a,3a,4a"><div class="si-top"><span class="si-num">2</span><span class="si-q">2a + a =</span></div><div class="si-opts"></div><span class="si-fb"></span></div>
+      <div class="sheet-item" data-a="2a" data-opts="2a,3a,4a"><div class="si-top"><span class="si-num">3</span><span class="si-q">a + a =</span></div><div class="si-opts"></div><span class="si-fb"></span></div>
+      <div class="sheet-item" data-a="4a" data-opts="3a,4a,5a"><div class="si-top"><span class="si-num">4</span><span class="si-q">3a + a =</span></div><div class="si-opts"></div><span class="si-fb"></span></div>
+      <div class="sheet-item" data-a="4a" data-opts="3a,4a,5a"><div class="si-top"><span class="si-num">5</span><span class="si-q">2a + 2a =</span></div><div class="si-opts"></div><span class="si-fb"></span></div>
+      <div class="sheet-item" data-a="4a" data-opts="3a,4a,5a"><div class="si-top"><span class="si-num">6</span><span class="si-q">a + 3a =</span></div><div class="si-opts"></div><span class="si-fb"></span></div>
+      <div class="sheet-item" data-a="5a" data-opts="4a,5a,6a"><div class="si-top"><span class="si-num">7</span><span class="si-q">2a + 3a =</span></div><div class="si-opts"></div><span class="si-fb"></span></div>
+      <div class="sheet-item" data-a="5a" data-opts="4a,5a,6a"><div class="si-top"><span class="si-num">8</span><span class="si-q">4a + a =</span></div><div class="si-opts"></div><span class="si-fb"></span></div>
+      <div class="sheet-item" data-a="3a" data-opts="2a,3a,4a"><div class="si-top"><span class="si-num">9</span><span class="si-q">a + a + a =</span></div><div class="si-opts"></div><span class="si-fb"></span></div>
+      <div class="sheet-item" data-a="4a" data-opts="3a,4a,5a"><div class="si-top"><span class="si-num">10</span><span class="si-q">2a + a + a =</span></div><div class="si-opts"></div><span class="si-fb"></span></div>
+      <div class="sheet-done">🎉 Evviva! Hai fatto tutti e 10 i calcoli con le lettere!</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="task-num">Attività · Quaderno</span>
+    <h3>Scrivi il risultato</h3>
+    <div class="quad">
+      <span class="q-label">✏️ Sul quaderno</span>
+      <p>Somma le lettere uguali e scrivi il risultato (numero + lettera):</p>
+      <span class="example">A + 2A = ___ &nbsp;(si scrive 3A)</span><br>
+      <span class="example" style="margin-top:6px">2A + A = ___ &nbsp;·&nbsp; 2A + 2A = ___ &nbsp;·&nbsp; A + A + A = ___</span>
+      <p style="margin-top:10px">Disegna: <b>A = 🍎</b>. Quanti sono <b>2A + A</b>? Scrivi il numero e la lettera.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= VIOLA — LA VITA DI OGNI GIORNO ================= -->
+<section id="screen-viola" class="screen">
+  <div class="backbar no-print"><button class="btn-back" data-goto="screen-home">← Torna al taccuino</button></div>
+  <div class="sec-head h-viola">
+    <span class="s-emoji">🧩</span>
+    <h2>Viola · La vita di ogni giorno</h2>
+    <p>Piccoli problemi di tutti i giorni con numeri piccoli. Leggi con calma e scegli la risposta giusta. Ce ne sono tantissimi, sempre nuovi!</p>
+    <div class="progress" data-progress-for="viola">
+      <div class="pdots"><span class="pdot"></span><span class="pdot"></span><span class="pdot"></span><span class="pdot"></span><span class="pdot"></span><span class="pdot"></span></div>
+      <span class="ptext">Giusti: <b class="pcount">0</b></span>
+      <span class="done-badge">✓ Colorato!</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="task-num">Allenamento · Piccoli problemi</span>
+    <h3>Risolvi il problema di ogni giorno</h3>
+    <p class="lead">Problemi facili con le cose di tutti i giorni: la spesa, la colazione, gli amici.</p>
+    <div class="machine" data-gen="probeasy" data-section="viola"><div class="m-q"></div><div class="m-opts"></div><div class="m-fb"></div></div>
+  </div>
+
+  <div class="card">
+    <span class="task-num">Scheda · 10 problemi facili</span>
+    <h3>Fai tutti e 10!</h3>
+    <p class="lead">Problemi con numeri piccoli. Leggi con calma e tocca la risposta giusta.</p>
+    <div class="sheet sheet-words" data-section="viola">
+      <div class="sheet-head"><span class="sheet-title">I tuoi 10 problemi</span><span class="sheet-progress">Fatti: <b class="sheet-count">0</b>/10</span></div>
+      <div class="sheet-item" data-a="2" data-opts="1,2,3"><div class="si-top"><span class="si-num">1</span><span class="si-q">HAI 3 MELE. NE MANGI 1. QUANTE RESTANO?</span></div><div class="si-opts"></div><span class="si-fb"></span></div>
+      <div class="sheet-item" data-a="3" data-opts="2,3,4"><div class="si-top"><span class="si-num">2</span><span class="si-q">CI SONO 2 GATTI. NE ARRIVA 1. QUANTI GATTI ORA?</span></div><div class="si-opts"></div><span class="si-fb"></span></div>
+      <div class="sheet-item" data-a="3" data-opts="2,3,4"><div class="si-top"><span class="si-num">3</span><span class="si-q">HAI 5 CARAMELLE. NE REGALI 2. QUANTE RESTANO?</span></div><div class="si-opts"></div><span class="si-fb"></span></div>
+      <div class="sheet-item" data-a="4" data-opts="3,4,5"><div class="si-top"><span class="si-num">4</span><span class="si-q">METTI 2 PIATTI E POI ALTRI 2. QUANTI PIATTI IN TUTTO?</span></div><div class="si-opts"></div><span class="si-fb"></span></div>
+      <div class="sheet-item" data-a="3" data-opts="2,3,4"><div class="si-top"><span class="si-num">5</span><span class="si-q">HAI 4 EURO. NE SPENDI 1. QUANTI EURO RESTANO?</span></div><div class="si-opts"></div><span class="si-fb"></span></div>
+      <div class="sheet-item" data-a="5" data-opts="4,5,6"><div class="si-top"><span class="si-num">6</span><span class="si-q">CI SONO 3 UCCELLINI. NE ARRIVANO 2. QUANTI SONO ORA?</span></div><div class="si-opts"></div><span class="si-fb"></span></div>
+      <div class="sheet-item" data-a="4" data-opts="3,4,5"><div class="si-top"><span class="si-num">7</span><span class="si-q">HAI 6 FIGURINE. NE PERDI 2. QUANTE RESTANO?</span></div><div class="si-opts"></div><span class="si-fb"></span></div>
+      <div class="sheet-item" data-a="4" data-opts="3,4,5"><div class="si-top"><span class="si-num">8</span><span class="si-q">MANGI 1 BISCOTTO E POI 3 BISCOTTI. QUANTI IN TUTTO?</span></div><div class="si-opts"></div><span class="si-fb"></span></div>
+      <div class="sheet-item" data-a="3" data-opts="2,3,4"><div class="si-top"><span class="si-num">9</span><span class="si-q">CI SONO 5 BAMBINI. 2 VANNO VIA. QUANTI RESTANO?</span></div><div class="si-opts"></div><span class="si-fb"></span></div>
+      <div class="sheet-item" data-a="4" data-opts="3,4,5"><div class="si-top"><span class="si-num">10</span><span class="si-q">HAI 2 PENNE. LA MAESTRA TE NE DÀ 2. QUANTE PENNE HAI?</span></div><div class="si-opts"></div><span class="si-fb"></span></div>
+      <div class="sheet-done">🎉 Evviva! Hai risolto tutti e 10 i problemi!</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="task-num">Attività · Quaderno</span>
+    <h3>Scrivi e rispondi</h3>
+    <div class="quad">
+      <span class="q-label">✏️ Sul quaderno</span>
+      <p>Rispondi ai problemi (scrivi l'operazione e la risposta):</p>
+      <span class="example">HAI 5 CARAMELLE. NE MANGI 2. QUANTE RESTANO?</span><br>
+      <span class="example" style="margin-top:6px">AL PARCO CI SONO 3 BAMBINI. NE ARRIVANO 2. QUANTI SONO ORA?</span><br>
+      <span class="example" style="margin-top:6px">HAI 4 EURO. NE SPENDI 1. QUANTI EURO RESTANO?</span><br>
+      <span class="example" style="margin-top:6px">CI SONO 6 FIGURINE. NE PERDI 2. QUANTE RESTANO?</span>
+      <p style="margin-top:10px">Prova a inventare tu un problema facile con i numeri <b>2</b> e <b>3</b>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= QUADERNO INDEX ================= -->
+<section id="screen-quaderno" class="screen">
+  <div class="backbar no-print"><button class="btn-back" data-goto="screen-home">← Torna al taccuino</button></div>
+  <div class="sec-head no-print" style="background:linear-gradient(150deg,#7C7468,#5C554B)">
+    <span class="s-emoji">📓</span>
+    <h2>Tutti i compiti sul quaderno</h2>
+    <p>Qui trovi in un solo posto tutto quello da scrivere a mano. Si può stampare per avere una traccia su carta.</p>
+  </div>
+
+  <div class="card">
+    <div class="no-print" style="text-align:right;margin-bottom:12px"><button class="btn-print" id="printBtn">🖨️ Stampa i compiti</button></div>
+    <h2 style="font-size:1.5rem;margin-bottom:6px">📓 Compiti di matematica sul quaderno</h2>
+    <p class="lead">Da fare sul quaderno a quadretti. Scrivi in stampatello maiuscolo.</p>
+
+    <div class="qi-block">
+      <h3><span class="qi-dot" style="background:#EC873A"></span> Arancione — Le addizioni</h3>
+      <ul>
+        <li>Incolonna e calcola: 24 + 13 · 35 + 21 · 46 + 12</li>
+        <li>Disegna 7 pennarelli e poi altri 5. Quanti in tutto?</li>
+        <li>Amici del 10: 6 + ___ = 10 · 3 + ___ = 10 · 8 + ___ = 10</li>
+      </ul>
+    </div>
+
+    <div class="qi-block">
+      <h3><span class="qi-dot" style="background:#DFA015"></span> Giallo — Le sottrazioni</h3>
+      <ul>
+        <li>Incolonna e calcola: 28 − 5 · 47 − 12 · 60 − 30</li>
+        <li>Disegna 10 fogli, cancellane 4: quanti restano?</li>
+      </ul>
+    </div>
+
+    <div class="qi-block">
+      <h3><span class="qi-dot" style="background:#3E7CB1"></span> Blu — Somme con le lettere</h3>
+      <ul>
+        <li>Ricorda: A è come una mela. A + 2A = 3A.</li>
+        <li>Somma e scrivi il risultato: A + 2A = ___ · 2A + A = ___ · 2A + 2A = ___</li>
+        <li>Con tre pezzi: A + A + A = ___ · 2A + A + A = ___</li>
+        <li>Disegna A = 🍎. Quanti sono 2A + A? Scrivi numero e lettera.</li>
+      </ul>
+    </div>
+
+    <div class="qi-block">
+      <h3><span class="qi-dot" style="background:#8B6BB1"></span> Viola — La vita di ogni giorno</h3>
+      <ul>
+        <li>HAI 5 CARAMELLE. NE MANGI 2. QUANTE RESTANO? (scrivi operazione e risposta)</li>
+        <li>AL PARCO CI SONO 3 BAMBINI. NE ARRIVANO 2. QUANTI SONO ORA?</li>
+        <li>HAI 6 EURO. COMPRI UN GELATO DA 2 EURO. QUANTI EURO TI RESTANO?</li>
+        <li>HAI 3 MELE. NE MANGI 1. QUANTE RESTANO?</li>
+        <li>CI SONO 3 UCCELLINI. NE ARRIVANO 2. QUANTI SONO ORA?</li>
+        <li>Inventa un problema facile con i numeri 2 e 3, poi risolvilo.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DIPLOMA ================= -->
+<section id="screen-diploma" class="screen">
+  <div class="backbar no-print"><button class="btn-back" data-goto="screen-home">← Torna al taccuino</button></div>
+  <div class="diploma">
+    <div class="seal">🏅</div>
+    <h2>Il diploma dei numeri</h2>
+    <div class="stars" id="diplomaStars">☆ ☆ ☆ ☆</div>
+    <div class="d-count" id="diplomaCount">Hai colorato 0 colori su 4.</div>
+    <div class="d-msg" id="diplomaMsg">Scegli un colore che ti piace. Rispondi giusto a 6 esercizi per colorarlo!</div>
+  </div>
+  <div class="card" style="margin-top:16px;text-align:center">
+    <p class="lead" style="margin:0">Torna al taccuino e continua ad allenarti. Ogni colore ti aspetta! 🎨</p>
+    <div style="margin-top:12px"><button class="btn-back" data-goto="screen-home">← Torna al taccuino</button></div>
+  </div>
+</section>
+
+<div class="site-footer no-print">Il taccuino dei numeri • Matematica a colori 🎨🔢</div>
+
+</div>
+
+<div id="toast"></div>
+<div id="saveind">💾 Progressi salvati</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var SECTIONS = ['arancione','giallo','blu','viola'];
+  var COLORNAME = {arancione:'ARANCIONE',giallo:'GIALLO',blu:'BLU',viola:'VIOLA'};
+  var TARGET = 6;
+  var TOTAL_COLORS = SECTIONS.length;
+  var PRAISE = ["Bravo!","Ottimo!","Perfetto!","Sì!","Grande!","Evviva!","Esatto!","Benissimo!","Che campione!","Giusto!"];
+
+  var score = {}; SECTIONS.forEach(function(s){ score[s] = 0; });
+  var completed = {};
+  var sheetState = {};   // { section: { itemIndex: true } }
+  var levelState = {};   // { machineId: "1" | "2" }
+
+  /* ---------- persistence: continuous auto-save ---------- */
+  var STORAGE_KEY = 'matematica_a_colori_v1';
+  var storageOK = (function(){
+    try { var k='__tk_test__'; window.localStorage.setItem(k,'1'); window.localStorage.removeItem(k); return true; }
+    catch(e){ return false; }
+  })();
+  function loadState(){
+    if(!storageOK) return;
+    try {
+      var raw = window.localStorage.getItem(STORAGE_KEY);
+      if(!raw) return;
+      var o = JSON.parse(raw);
+      if(!o || typeof o !== 'object') return;
+      if(o.scores){ SECTIONS.forEach(function(s){ if(typeof o.scores[s] === 'number' && o.scores[s] >= 0) score[s] = o.scores[s]; }); }
+      if(o.completed){ SECTIONS.forEach(function(s){ if(o.completed[s]) completed[s] = true; }); }
+      if(o.sheets && typeof o.sheets === 'object'){ sheetState = o.sheets; }
+      if(o.levels && typeof o.levels === 'object'){ levelState = o.levels; }
+    } catch(e){}
+  }
+  function saveState(){
+    if(!storageOK) return;
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        scores: score, completed: completed, sheets: sheetState, levels: levelState
+      }));
+      flashSaved();
+    } catch(e){}
+  }
+  var flashTimer = null, lastFlash = 0;
+  function flashSaved(){
+    var el = document.getElementById('saveind');
+    if(!el) return;
+    var now = Date.now();
+    if(now - lastFlash < 1500) return;   // throttle the visual only; saving still happens every change
+    lastFlash = now;
+    el.classList.add('show');
+    if(flashTimer) clearTimeout(flashTimer);
+    flashTimer = setTimeout(function(){ el.classList.remove('show'); }, 900);
+  }
+
+  function ri(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+  function praise(){ return "🌟 " + PRAISE[ri(0,PRAISE.length-1)]; }
+  function term(c,L){ return c===1 ? L : (c+L); }
+
+  function makeOptions(answer, spread, count){
+    var set = {}; var list = []; list.push(answer); set[answer]=true;
+    var guard = 0;
+    while(list.length < count && guard < 80){
+      var delta = ri(1, spread) * (Math.random()<0.5 ? -1 : 1);
+      var v = answer + delta;
+      if(v >= 0 && !set[v]){ set[v]=true; list.push(v); }
+      guard++;
+    }
+    var extra = 1;
+    while(list.length < count){ var w = answer + extra; if(!set[w]){ set[w]=true; list.push(w);} extra++; }
+    for(var i=list.length-1;i>0;i--){ var j=ri(0,i); var t=list[i]; list[i]=list[j]; list[j]=t; }
+    return list.slice(0,count);
+  }
+
+  /* ---------- numeric generators ---------- */
+  function genAdd(level){
+    var x,y;
+    if(level===2){ x = ri(10,80); y = ri(1, Math.min(19, 99-x)); }
+    else { x = ri(1,10); y = ri(1,10); }
+    var a = x+y;
+    return {q:'<span class="bignum">'+x+' + '+y+'</span>', a:a, opts:makeOptions(a, level===2?6:3, 3)};
+  }
+  function genSub(level){
+    var x,y;
+    if(level===2){ x = ri(21,99); y = ri(1, x-1); }
+    else { x = ri(2,20); y = ri(1, x); }
+    var a = x-y;
+    return {q:'<span class="bignum">'+x+' − '+y+'</span>', a:a, opts:makeOptions(a, level===2?6:3, 3)};
+  }
+  function genAmici(){
+    var target = 10;
+    var x = ri(0,target);
+    var a = target - x;
+    return {q:'<span class="bignum">'+x+' + ? = '+target+'</span>', a:a, opts:makeOptions(a,3,3)};
+  }
+
+  /* ---------- like-terms (number pad) ---------- */
+  function slotHTML(L){ return '<span class="slotwrap"><span class="slot">?</span><span class="slotL">'+L+'</span></span>'; }
+  function genLike(){
+    var letters = ['a','b','x']; var L = letters[ri(0,2)];
+    var c1 = ri(1,4), c2 = ri(1,4); var ans = c1+c2;
+    var q = '<div class="likeq"><span class="bignum">'+term(c1,L)+' + '+term(c2,L)+' =</span>'+slotHTML(L)+'</div>';
+    return {q:q, a:ans, pad:true, letter:L};
+  }
+  function genLike3(){
+    var letters = ['a','b','x']; var L = letters[ri(0,2)];
+    var c1 = ri(1,3), c2 = ri(1,3), c3 = ri(1,3); var ans = c1+c2+c3;
+    var q = '<div class="likeq"><span class="bignum">'+term(c1,L)+' + '+term(c2,L)+' + '+term(c3,L)+' =</span>'+slotHTML(L)+'</div>';
+    return {q:q, a:ans, pad:true, letter:L};
+  }
+
+  /* ---------- easy everyday problems ---------- */
+  var EASY = [
+    function(){ var a=ri(2,4), b=ri(2,4); return {q:"A COLAZIONE MANGI "+a+" BISCOTTI. POI NE MANGI ALTRI "+b+". QUANTI BISCOTTI IN TUTTO?", a:a+b}; },
+    function(){ var a=ri(4,9), b=ri(1,3); return {q:"HAI "+a+" EURO. COMPRI UNA CARAMELLA DA "+b+" EURO. QUANTI EURO TI RESTANO?", a:a-b}; },
+    function(){ var a=ri(3,6), b=ri(1,3); return {q:"AL PARCO CI SONO "+a+" BAMBINI. NE ARRIVANO ALTRI "+b+". QUANTI BAMBINI CI SONO ORA?", a:a+b}; },
+    function(){ var a=ri(3,5), b=ri(1,2); return {q:"METTI "+a+" PIATTI SULLA TAVOLA. POI NE METTI ALTRI "+b+". QUANTI PIATTI CI SONO?", a:a+b}; },
+    function(){ var a=ri(4,8), b=ri(1,3); return {q:"HAI "+a+" FIGURINE. NE REGALI "+b+" A UN AMICO. QUANTE TE NE RESTANO?", a:a-b}; },
+    function(){ var a=ri(3,6); return {q:"IN FRIGO CI SONO "+a+" YOGURT. NE MANGI 1. QUANTI RESTANO?", a:a-1}; },
+    function(){ var a=ri(2,4), b=ri(2,4); return {q:"COMPRI "+a+" MELE E "+b+" BANANE. QUANTI FRUTTI IN TUTTO?", a:a+b}; },
+    function(){ var a=ri(4,7), b=ri(1,3); return {q:"CI SONO "+a+" UCCELLINI SU UN ALBERO. "+b+" VOLANO VIA. QUANTI RESTANO?", a:a-b}; },
+    function(){ var a=ri(3,5); return {q:"A SCUOLA HAI "+a+" QUADERNI. NE COMPRI 1 NUOVO. QUANTI QUADERNI HAI?", a:a+1}; },
+    function(){ var a=ri(5,9), b=ri(2,4); return {q:"HAI "+a+" CARAMELLE. NE MANGI "+b+". QUANTE CARAMELLE TI RESTANO?", a:a-b}; },
+    function(){ var a=ri(4,6); return {q:"SULLA TAVOLA CI SONO "+a+" BICCHIERI. NE CADE 1. QUANTI BICCHIERI RESTANO INTERI?", a:a-1}; },
+    function(){ var a=ri(2,3), b=ri(1,2); return {q:"AL MERCATO COMPRI "+a+" CHILI DI MELE E "+b+" CHILI DI PERE. QUANTI CHILI IN TUTTO?", a:a+b}; },
+    function(){ var a=ri(3,5); return {q:"A CASA CI SONO "+a+" AMICI. ARRIVA ANCHE TUA SORELLA. QUANTI BAMBINI CI SONO ORA?", a:a+1}; },
+    function(){ var a=ri(2,3), b=ri(2,3); return {q:"PREPARI "+a+" PANINI PER TE E "+b+" PER TUA SORELLA. QUANTI PANINI IN TUTTO?", a:a+b}; },
+    function(){ var a=ri(6,10), b=ri(2,5); return {q:"HAI "+a+" EURO. COMPRI UN QUADERNO DA "+b+" EURO. QUANTI EURO TI RESTANO?", a:a-b}; },
+    function(){ var a=ri(5,8), b=ri(2,4); return {q:"CI SONO "+a+" CIOCCOLATINI. NE MANGI "+b+". QUANTI RESTANO?", a:a-b}; },
+    function(){ var a=ri(2,4), b=ri(2,4); return {q:"IN CLASSE CI SONO "+a+" BAMBINE E "+b+" BAMBINI. QUANTI ALUNNI IN TUTTO?", a:a+b}; },
+    function(){ var a=ri(4,7); return {q:"HAI "+a+" MATITE COLORATE. NE PERDI 1. QUANTE MATITE TI RESTANO?", a:a-1}; },
+    function(){ var a=ri(2,3), b=ri(2,3); return {q:"BEVI "+a+" BICCHIERI D'ACQUA AL MATTINO E "+b+" AL POMERIGGIO. QUANTI IN TUTTO?", a:a+b}; },
+    function(){ var a=ri(5,9), b=ri(1,3); return {q:"CI SONO "+a+" PALLONCINI. "+b+" SCOPPIANO. QUANTI PALLONCINI RESTANO?", a:a-b}; },
+    function(){ var a=ri(3,6), b=ri(1,2); return {q:"HAI "+a+" ADESIVI. LA MAESTRA TE NE DÀ ALTRI "+b+". QUANTI ADESIVI HAI ORA?", a:a+b}; },
+    function(){ var a=ri(4,8), b=ri(2,3); return {q:"NEL CESTINO CI SONO "+a+" MELE. NE MANGIA "+b+" LA FAMIGLIA. QUANTE MELE RESTANO?", a:a-b}; }
+  ];
+  function genProbEasy(){
+    var t = EASY[ri(0,EASY.length-1)]();
+    return {q:'<div class="prob">'+t.q+'</div>', a:t.a, opts:makeOptions(t.a,3,3)};
+  }
+
+
+  var GEN = {
+    add: function(m){ return genAdd(parseInt(m.getAttribute('data-level'),10)||1); },
+    sub: function(m){ return genSub(parseInt(m.getAttribute('data-level'),10)||1); },
+    amici: function(){ return genAmici(); },
+    like: function(){ return genLike(); },
+    like3: function(){ return genLike3(); },
+    probeasy: function(){ return genProbEasy(); }
+  };
+
+  /* ---------- engine ---------- */
+  function loadProblem(m){
+    var type = m.getAttribute('data-gen');
+    var gen = GEN[type];
+    if(!gen) return;
+    var data = gen(m);
+    m._solved = false;
+    m.querySelector('.m-q').innerHTML = data.q;
+    var optsWrap = m.querySelector('.m-opts');
+    optsWrap.innerHTML = '';
+
+    if(data.pad){
+      optsWrap.className = 'm-opts m-pad';
+      var nums = [1,2,3,4,5,6,7,8,9];
+      nums.forEach(function(n){
+        var b = document.createElement('button');
+        b.className = 'm-key'; b.type = 'button'; b.textContent = String(n);
+        b.addEventListener('click', function(){ answerPad(m, b, n, data.a, data.letter); });
+        optsWrap.appendChild(b);
+      });
+    } else {
+      optsWrap.className = data.wide ? 'm-opts wide' : 'm-opts';
+      data.opts.forEach(function(opt){
+        var b = document.createElement('button');
+        b.className = 'm-opt'; b.type = 'button'; b.textContent = String(opt);
+        b.addEventListener('click', function(){ answer(m, b, opt, data.a); });
+        optsWrap.appendChild(b);
+      });
+    }
+    var fb = m.querySelector('.m-fb'); if(fb){ fb.textContent=''; fb.className='m-fb'; }
+  }
+
+  function answer(m, btn, chosen, correct){
+    if(m._solved) return;
+    var fb = m.querySelector('.m-fb');
+    if(String(chosen) === String(correct)){
+      m._solved = true;
+      btn.classList.add('ok');
+      var all = m.querySelectorAll('.m-opt');
+      for(var i=0;i<all.length;i++){ all[i].disabled = true; }
+      if(fb){ fb.textContent = praise(); fb.className = 'm-fb good'; }
+      addScore(m.getAttribute('data-section'));
+      setTimeout(function(){ loadProblem(m); }, 1200);
+    } else {
+      btn.classList.add('no'); btn.disabled = true;
+      if(fb){ fb.textContent = 'Riprova! 💪'; fb.className = 'm-fb no'; }
+      m.classList.add('shake');
+      setTimeout(function(){ m.classList.remove('shake'); }, 420);
+    }
+  }
+
+  function answerPad(m, btn, chosen, correct, letter){
+    if(m._solved) return;
+    var fb = m.querySelector('.m-fb');
+    var slot = m.querySelector('.slot');
+    if(String(chosen) === String(correct)){
+      m._solved = true;
+      btn.classList.add('ok');
+      var keys = m.querySelectorAll('.m-key');
+      for(var i=0;i<keys.length;i++){ keys[i].disabled = true; }
+      if(slot){ slot.textContent = String(correct); slot.classList.add('filled'); }
+      if(fb){ fb.textContent = praise() + '  →  ' + correct + letter; fb.className = 'm-fb good'; }
+      addScore(m.getAttribute('data-section'));
+      setTimeout(function(){ loadProblem(m); }, 1350);
+    } else {
+      btn.classList.add('no'); btn.disabled = true;
+      if(slot){
+        slot.textContent = String(chosen); slot.classList.add('wrongslot');
+        setTimeout(function(){ if(!m._solved){ slot.textContent='?'; slot.classList.remove('wrongslot'); } }, 500);
+      }
+      if(fb){ fb.textContent = 'Riprova! 💪'; fb.className = 'm-fb no'; }
+      m.classList.add('shake');
+      setTimeout(function(){ m.classList.remove('shake'); }, 420);
+    }
+  }
+
+  /* ---------- score / progress ---------- */
+  function addScore(section){
+    if(!section) return;
+    score[section] = (score[section]||0) + 1;
+    updateSectionProgress(section);
+    if(score[section] === TARGET && !completed[section]){
+      completed[section] = true;
+      celebrate(section);
+    }
+    updateDiploma();
+    saveState();
+  }
+
+  function updateSectionProgress(section){
+    var bars = document.querySelectorAll('[data-progress-for="'+section+'"]');
+    for(var k=0;k<bars.length;k++){
+      var bar = bars[k];
+      var n = score[section];
+      var dots = bar.querySelectorAll('.pdot');
+      for(var i=0;i<dots.length;i++){ if(i < n) dots[i].classList.add('on'); else dots[i].classList.remove('on'); }
+      var cnt = bar.querySelector('.pcount');
+      if(cnt) cnt.textContent = n;
+      if(n >= TARGET) bar.classList.add('completed');
+    }
+  }
+
+  function celebrate(section){
+    var blob = document.querySelector('.blob[data-key="'+section+'"]');
+    if(blob) blob.classList.add('done');
+    toast('🎉 Hai colorato il ' + COLORNAME[section] + '!');
+  }
+
+  function updateDiploma(){
+    var done = 0;
+    SECTIONS.forEach(function(s){ if(score[s] >= TARGET) done++; });
+    var stars = ''; for(var i=0;i<TOTAL_COLORS;i++){ stars += (i<done ? '★' : '☆') + (i<TOTAL_COLORS-1 ? ' ' : ''); }
+    var starsEl = document.getElementById('diplomaStars');
+    var countEl = document.getElementById('diplomaCount');
+    var msgEl = document.getElementById('diplomaMsg');
+    if(starsEl) starsEl.textContent = stars;
+    if(countEl) countEl.textContent = 'Hai colorato ' + done + ' colori su ' + TOTAL_COLORS + '.';
+    if(msgEl){
+      if(done >= TOTAL_COLORS) msgEl.textContent = '🎉 Hai colorato tutto il taccuino! Sei un vero Campione dei Numeri. Bravissimo!';
+      else if(done >= 2) msgEl.textContent = 'Che bravo! Sei a metà strada. Continua con gli altri colori! 🎨';
+      else if(done >= 1) msgEl.textContent = 'Hai iniziato benissimo! Colora anche gli altri. 🖍️';
+      else msgEl.textContent = 'Scegli un colore che ti piace. Rispondi giusto a 6 esercizi per colorarlo!';
+    }
+  }
+
+  /* ---------- toast ---------- */
+  var toastTimer = null;
+  function toast(text){
+    var t = document.getElementById('toast');
+    if(!t) return;
+    t.textContent = text; t.classList.add('show');
+    if(toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 2600);
+  }
+
+  /* ---------- navigation ---------- */
+  function showScreen(id){
+    var screens = document.querySelectorAll('.screen');
+    for(var i=0;i<screens.length;i++) screens[i].classList.remove('active');
+    var el = document.getElementById(id);
+    if(el){ el.classList.add('active'); window.scrollTo({top:0, behavior:'smooth'}); }
+  }
+  document.addEventListener('click', function(e){
+    var t = e.target.closest('[data-goto]');
+    if(t){ showScreen(t.getAttribute('data-goto')); }
+  });
+
+  /* ---------- toggles: difficulty ---------- */
+  document.addEventListener('click', function(e){
+    var tg = e.target.closest('.tg');
+    if(!tg) return;
+    var m = document.getElementById(tg.getAttribute('data-target'));
+    if(!m) return;
+    var group = tg.parentNode.querySelectorAll('.tg');
+    for(var i=0;i<group.length;i++) group[i].classList.remove('on');
+    tg.classList.add('on');
+    if(tg.hasAttribute('data-set-level')){
+      var lvl = tg.getAttribute('data-set-level');
+      m.setAttribute('data-level', lvl);
+      if(m.id){ levelState[m.id] = lvl; saveState(); }
+    }
+    loadProblem(m);
+  });
+
+  /* ---------- print ---------- */
+  var printBtn = document.getElementById('printBtn');
+  if(printBtn){ printBtn.addEventListener('click', function(){ window.print(); }); }
+
+  /* ---------- worksheets (fixed set of 10) ---------- */
+  function initSheet(sheet){
+    var section = sheet.getAttribute('data-section');
+    sheetState[section] = sheetState[section] || {};
+    var saved = sheetState[section];
+    var items = sheet.querySelectorAll('.sheet-item');
+    var total = items.length;
+    var doneCount = 0;
+    var countEl = sheet.querySelector('.sheet-count');
+    var doneMsg = sheet.querySelector('.sheet-done');
+    items.forEach(function(item, idx){
+      var correct = item.getAttribute('data-a');
+      var optsWrap = item.querySelector('.si-opts');
+      var opts = (item.getAttribute('data-opts')||'').split(',');
+      for(var i=opts.length-1;i>0;i--){ var j=ri(0,i); var t=opts[i]; opts[i]=opts[j]; opts[j]=t; }
+      optsWrap.innerHTML = '';
+      var solved = false;
+
+      function lockItem(){
+        solved = true;
+        item.classList.add('done');
+        var bs = item.querySelectorAll('.si-opt');
+        for(var k=0;k<bs.length;k++){ bs[k].disabled = true; }
+      }
+
+      opts.forEach(function(opt){
+        var b = document.createElement('button');
+        b.className = 'si-opt'; b.type = 'button'; b.textContent = opt;
+        b.addEventListener('click', function(){
+          if(solved) return;
+          var fb = item.querySelector('.si-fb');
+          if(opt === correct){
+            b.classList.add('ok');
+            lockItem();
+            if(fb){ fb.textContent = '✓ ' + PRAISE[ri(0,PRAISE.length-1)]; fb.className = 'si-fb good'; }
+            doneCount++;
+            if(countEl) countEl.textContent = doneCount;
+            saved[idx] = true;      // remember this item is done
+            addScore(section);      // updates score + auto-saves
+            if(doneCount >= total && doneMsg){ doneMsg.classList.add('show'); }
+          } else {
+            b.classList.add('no'); b.disabled = true;
+            if(fb){ fb.textContent = 'Riprova!'; fb.className = 'si-fb no'; }
+            item.classList.add('shake');
+            setTimeout(function(){ item.classList.remove('shake'); }, 420);
+          }
+        });
+        optsWrap.appendChild(b);
+      });
+
+      // restore a previously solved item (visual only, no score change)
+      if(saved[idx]){
+        var btns = optsWrap.querySelectorAll('.si-opt');
+        for(var b2=0;b2<btns.length;b2++){ if(btns[b2].textContent === correct){ btns[b2].classList.add('ok'); } }
+        lockItem();
+        var fb2 = item.querySelector('.si-fb');
+        if(fb2){ fb2.textContent = '✓'; fb2.className = 'si-fb good'; }
+        doneCount++;
+        if(countEl) countEl.textContent = doneCount;
+      }
+    });
+    if(doneCount >= total && doneMsg){ doneMsg.classList.add('show'); }
+  }
+
+  /* ---------- restore difficulty toggles ---------- */
+  function restoreLevels(){
+    for(var id in levelState){
+      if(!levelState.hasOwnProperty(id)) continue;
+      var m = document.getElementById(id);
+      if(!m) continue;
+      var lvl = levelState[id];
+      m.setAttribute('data-level', lvl);
+      var tgs = document.querySelectorAll('.tg[data-target="'+id+'"]');
+      for(var t=0;t<tgs.length;t++){
+        if(tgs[t].getAttribute('data-set-level') === lvl) tgs[t].classList.add('on');
+        else tgs[t].classList.remove('on');
+      }
+    }
+  }
+
+  /* ---------- init ---------- */
+  loadState();
+  restoreLevels();
+
+  var machines = document.querySelectorAll('.machine');
+  for(var i=0;i<machines.length;i++){ loadProblem(machines[i]); }
+  var sheets = document.querySelectorAll('.sheet');
+  for(var s=0;s<sheets.length;s++){ initSheet(sheets[s]); }
+
+  // restore progress bars and "colored" blobs from saved scores
+  SECTIONS.forEach(function(sec){
+    updateSectionProgress(sec);
+    if(completed[sec] || score[sec] >= TARGET){
+      completed[sec] = true;
+      var blob = document.querySelector('.blob[data-key="'+sec+'"]');
+      if(blob) blob.classList.add('done');
+    }
+  });
+  updateDiploma();
+
+  /* ---------- reset progress (two-tap confirm) ---------- */
+  (function(){
+    var rb = document.getElementById('resetBtn');
+    if(!rb) return;
+    var armed = false, armTimer = null;
+    var label = rb.textContent;
+    rb.addEventListener('click', function(){
+      if(!armed){
+        armed = true;
+        rb.textContent = 'Sicuro? Tocca ancora per cancellare';
+        rb.classList.add('armed');
+        if(armTimer) clearTimeout(armTimer);
+        armTimer = setTimeout(function(){ armed = false; rb.textContent = label; rb.classList.remove('armed'); }, 4000);
+        return;
+      }
+      if(armTimer) clearTimeout(armTimer);
+      try { if(storageOK) window.localStorage.removeItem(STORAGE_KEY); } catch(e){}
+      try { location.reload(); }
+      catch(e){ rb.textContent = 'Ricarica la pagina per completare'; }
+    });
+  })();
+})();
+</script>
+</body>
+</html>
